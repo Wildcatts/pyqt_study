@@ -3,62 +3,88 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5 import uic
 
-from_class = uic.loadUiType("../ui/Test3_2.ui")[0]
+from_class = uic.loadUiType("../ui/Test5.ui")[0]
 
 class WindowClass(QMainWindow, from_class) :
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+        self.setWindowTitle("Test5")
 
-        self.setWindowTitle("Test3_2")
+        self.input_btn.clicked.connect(self.inputName)
+        self.season_btn.clicked.connect(self.inputSeason)
+        self.color_btn.clicked.connect(self.inputColor)
+        self.font_btn.clicked.connect(self.inputFont)
+        self.file_btn.clicked.connect(self.openFile)
 
-        self.add_btn.clicked.connect(self.addText)
-        self.clear_btn.clicked.connect(self.clear)
-
-        self.ubuntu_btn.clicked.connect(lambda: self.setFont("Ubuntu"))
-        self.nanum_btn.clicked.connect(lambda: self.setFont("NanumGothic"))
-
-        self.red_btn.clicked.connect(lambda: self.setTextColor(255, 0, 0))
-        self.green_btn.clicked.connect(lambda: self.setTextColor(0, 255, 0))
-        self.blue_btn.clicked.connect(lambda: self.setTextColor(0, 0, 255))
-
-        self.set_font_size_btn.clicked.connect(self.setFontSize)
-        # self.font_size.textChanged.connect(self.checkDigit)
-        self.font_size.returnPressed.connect(self.setFontSize)  # enter key 
-
-        self.font_size.setValidator(QIntValidator())
+        # self.lineEdit.returnPressed.connect(self.inputNumber)
+        self.lineEdit.returnPressed.connect(self.question)
 
 
+    def question(self):
+        text = self.lineEdit.text()
 
-    def checkDigit(self):
-        text = self.font_size.text()
-        if (text.isdigit() == False):
-            self.font_size.setText(text[:-1])
+        if text.isdigit():
+            self.textEdit.setText(text)
+        else:
+            retval = QMessageBox.question(self, 'QMessageBox - question', 'Are you sure to print?', 
+                                          QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if retval == QMessageBox.Yes:
+                self.textEdit.setText(text)
+            else:
+                self.lineEdit.clear()
 
-    def setFontSize(self):
-        size = int(self.font_size.text())
-        self.output_text.selectAll()  # 전체선택을 위한 옵션
-        self.output_text.setFontPointSize(size)
-        self.output_text.moveCursor(QTextCursor.End)
-             
-    def setTextColor(self, r, g, b):
-        color = QColor(r, g, b)
-        self.output_text.selectAll()  # 전체선택을 위한 옵션
-        self.output_text.setTextColor(color)
-        self.output_text.moveCursor(QTextCursor.End)
 
-    def addText(self):
-        input = self.input_text.toPlainText()
-        self.input_text.clear()
-        self.output_text.append(input)
-    
-    def clear(self):
-        self.input_text.clear()
-        self.output_text.clear()
+    def inputNumber(self):
+        text = self.lineEdit.text()
 
-    def setFont(self, font_name):
-        font = QFont(font_name, 11)
-        self.output_text.setFont(font)
+        if text.isdigit():
+            self.textEdit.setText(text)
+        else:
+            QMessageBox.warning(self, 'QMessageBox - setText', 'Please enter only numbers')
+            self.lineEdit.clear()
+
+    def openFile(self):
+        name = QFileDialog.getOpenFileName(self, 'Open File', './')
+
+        if name[0]:
+            with open(name[0], 'r') as file:
+                data = file.read()
+                self.textEdit.setText(data)
+
+    def inputFont(self):
+        font, ok = QFontDialog.getFont()
+
+        if ok and font:
+            info = QFontInfo(font)
+            self.textEdit.append(info.family() + info.styleName())
+            self.textEdit.selectAll()
+            self.textEdit.setFont(font)
+            self.textEdit.moveCursor(QTextCursor.End)
+
+
+    def inputColor(self):
+        color = QColorDialog.getColor()
+
+        if color.isValid():
+            self.textEdit.append("color")
+            self.textEdit.selectAll()
+            self.textEdit.setTextColor(color)
+            self.textEdit.moveCursor(QTextCursor.End)
+
+
+    def inputSeason(self):
+        items = ['Spring', 'Summer', 'Fall', 'Winter']
+        item, ok = QInputDialog.getItem(self, 'QInputDialog - Segirason', 'Season : ', items, 0, False)
+
+        if ok and item:
+            self.textEdit.append(item)
+
+    def inputName(self):
+        text, ok = QInputDialog.getText(self, 'QInputDialog - Name', 'User name :')
+
+        if ok and text:
+            self.textEdit.append(text)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
