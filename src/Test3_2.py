@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5 import uic
 
-from_class = uic.loadUiType("Test3_2.ui")[0]
+from_class = uic.loadUiType("../ui/Test3_2.ui")[0]
 
 class WindowClass(QMainWindow, from_class) :
     def __init__(self):
